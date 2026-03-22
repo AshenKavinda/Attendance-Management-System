@@ -7,6 +7,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 public class StudentPanel extends JPanel {
@@ -32,7 +33,7 @@ public class StudentPanel extends JPanel {
     // Form fields
     private JTextField        tfFirstName;
     private JTextField        tfLastName;
-    private JTextField        tfDob;
+    private DatePickerField   dpDob;
     private JComboBox<String> cbGender;
     private JTextField        tfEmail;
     private JTextField        tfPhone;
@@ -160,7 +161,7 @@ public class StudentPanel extends JPanel {
 
         tfFirstName = new JTextField();
         tfLastName  = new JTextField();
-        tfDob       = new JTextField("YYYY-MM-DD");
+        dpDob       = new DatePickerField();
         cbGender    = new JComboBox<>(new String[]{"", "Male", "Female", "Other"});
         tfEmail     = new JTextField();
         tfPhone     = new JTextField();
@@ -168,7 +169,7 @@ public class StudentPanel extends JPanel {
 
         grid.add(label("First Name *")); grid.add(tfFirstName);
         grid.add(label("Last Name *"));  grid.add(tfLastName);
-        grid.add(label("Date of Birth")); grid.add(tfDob);
+        grid.add(label("Date of Birth")); grid.add(dpDob);
         grid.add(label("Gender"));        grid.add(cbGender);
         grid.add(label("Email"));         grid.add(tfEmail);
         grid.add(label("Phone"));         grid.add(tfPhone);
@@ -293,7 +294,7 @@ public class StudentPanel extends JPanel {
 
         tfFirstName.setText(s.getFirstName());
         tfLastName .setText(s.getLastName());
-        tfDob      .setText(s.getDateOfBirth() != null ? s.getDateOfBirth().toString() : "");
+        dpDob      .setDate(s.getDateOfBirth() != null ? s.getDateOfBirth().toLocalDate() : null);
         cbGender   .setSelectedItem(s.getGender() != null ? s.getGender() : "");
         tfEmail    .setText(s.getEmail()   != null ? s.getEmail()   : "");
         tfPhone    .setText(s.getPhone()   != null ? s.getPhone()   : "");
@@ -355,44 +356,97 @@ public class StudentPanel extends JPanel {
         String firstName = tfFirstName.getText().trim();
         String lastName  = tfLastName .getText().trim();
 
+        // ── First Name ──────────────────────────────────────────────────────
         if (firstName.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "First Name is required.", "Validation", JOptionPane.WARNING_MESSAGE);
+            showError("First Name is required.");
             tfFirstName.requestFocus();
             return null;
         }
+        if (firstName.length() < 2 || firstName.length() > 50) {
+            showError("First Name must be between 2 and 50 characters.");
+            tfFirstName.requestFocus();
+            return null;
+        }
+        if (!firstName.matches("[A-Za-z][A-Za-z .'-]*")) {
+            showError("First Name may only contain letters, spaces, hyphens, apostrophes, or dots.");
+            tfFirstName.requestFocus();
+            return null;
+        }
+
+        // ── Last Name ───────────────────────────────────────────────────────
         if (lastName.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Last Name is required.", "Validation", JOptionPane.WARNING_MESSAGE);
+            showError("Last Name is required.");
+            tfLastName.requestFocus();
+            return null;
+        }
+        if (lastName.length() < 2 || lastName.length() > 50) {
+            showError("Last Name must be between 2 and 50 characters.");
+            tfLastName.requestFocus();
+            return null;
+        }
+        if (!lastName.matches("[A-Za-z][A-Za-z .'-]*")) {
+            showError("Last Name may only contain letters, spaces, hyphens, apostrophes, or dots.");
             tfLastName.requestFocus();
             return null;
         }
 
-        Date dob = null;
-        String dobStr = tfDob.getText().trim();
-        if (!dobStr.isEmpty() && !dobStr.equals("YYYY-MM-DD")) {
-            try {
-                dob = Date.valueOf(dobStr);
-            } catch (IllegalArgumentException ex) {
-                JOptionPane.showMessageDialog(this, "Date of Birth must be YYYY-MM-DD format.", "Validation", JOptionPane.WARNING_MESSAGE);
+        // ── Date of Birth ───────────────────────────────────────────────────
+        LocalDate dobLD = dpDob.getDate();
+        if (dobLD != null) {
+            if (!dobLD.isBefore(LocalDate.now())) {
+                showError("Date of Birth must be a past date.");
+                return null;
+            }
+            if (dobLD.getYear() < 1900) {
+                showError("Date of Birth year must be 1900 or later.");
                 return null;
             }
         }
 
+        // ── Email ───────────────────────────────────────────────────────────
+        String email = tfEmail.getText().trim();
+        if (!email.isEmpty() && !email.matches("^[A-Za-z0-9+_.%-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            showError("Please enter a valid email address (e.g. user@example.com).");
+            tfEmail.requestFocus();
+            return null;
+        }
+
+        // ── Phone ───────────────────────────────────────────────────────────
+        String phone = tfPhone.getText().trim();
+        if (!phone.isEmpty() && !phone.matches("^\\+?[\\d\\s().\\-]{7,20}$")) {
+            showError("Phone must be 7\u201320 characters and may only contain digits, spaces, +, ( ), or -.");
+            tfPhone.requestFocus();
+            return null;
+        }
+
+        // ── Address ─────────────────────────────────────────────────────────
+        String address = tfAddress.getText().trim();
+        if (address.length() > 200) {
+            showError("Address must not exceed 200 characters.");
+            tfAddress.requestFocus();
+            return null;
+        }
+
         Student s = new Student();
-        s.setFirstName (firstName);
-        s.setLastName  (lastName);
-        s.setDateOfBirth(dob);
-        s.setGender    (cbGender.getSelectedItem().toString());
-        s.setEmail     (tfEmail  .getText().trim());
-        s.setPhone     (tfPhone  .getText().trim());
-        s.setAddress   (tfAddress.getText().trim());
+        s.setFirstName  (firstName);
+        s.setLastName   (lastName);
+        s.setDateOfBirth(dobLD != null ? Date.valueOf(dobLD) : null);
+        s.setGender     (cbGender.getSelectedItem().toString());
+        s.setEmail      (email);
+        s.setPhone      (phone);
+        s.setAddress    (address);
         return s;
+    }
+
+    private void showError(String msg) {
+        JOptionPane.showMessageDialog(this, msg, "Validation Error", JOptionPane.WARNING_MESSAGE);
     }
 
     private void clearForm() {
         selectedId = -1;
         tfFirstName.setText("");
         tfLastName .setText("");
-        tfDob      .setText("YYYY-MM-DD");
+        dpDob      .setDate(null);
         cbGender   .setSelectedIndex(0);
         tfEmail    .setText("");
         tfPhone    .setText("");

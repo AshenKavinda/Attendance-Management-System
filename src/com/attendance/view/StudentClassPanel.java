@@ -39,7 +39,7 @@ public class StudentClassPanel extends JPanel {
     private JComboBox<Student>  cbStudent;
     private JTextField          tfIndexNumber;
     private JComboBox<String>   cbStatus;
-    private JTextField          tfEnrollDate;
+    private DatePickerField     dpEnrollDate;
 
     // Action buttons
     private JButton btnAssign;
@@ -154,12 +154,11 @@ public class StudentClassPanel extends JPanel {
         cbStudent.setPreferredSize(new Dimension(200, 26));
         tfIndexNumber = new JTextField();
         cbStatus      = new JComboBox<>(new String[]{"Active", "Inactive", "Graduated"});
-        tfEnrollDate  = new JTextField(new java.text.SimpleDateFormat("yyyy-MM-dd")
-                            .format(new java.util.Date()));
+        dpEnrollDate  = new DatePickerField(java.time.LocalDate.now());
 
         grid.add(label("Student *"));          grid.add(cbStudent);
         grid.add(label("Index Number"));       grid.add(tfIndexNumber);
-        grid.add(label("Enrollment Date"));    grid.add(tfEnrollDate);
+        grid.add(label("Enrollment Date"));    grid.add(dpEnrollDate);
         grid.add(label("Status"));             grid.add(cbStatus);
 
         JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
@@ -323,21 +322,32 @@ public class StudentClassPanel extends JPanel {
             return;
         }
 
+        String idxStr = tfIndexNumber.getText().trim();
+        if (idxStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Index Number is required.", "Validation", JOptionPane.WARNING_MESSAGE);
+            tfIndexNumber.requestFocus();
+            return;
+        }
         int indexNo;
         try {
-            indexNo = Integer.parseInt(tfIndexNumber.getText().trim());
+            indexNo = Integer.parseInt(idxStr);
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Index Number must be a valid number.", "Validation", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Index Number must be a valid integer.", "Validation", JOptionPane.WARNING_MESSAGE);
+            tfIndexNumber.requestFocus();
+            return;
+        }
+        if (indexNo <= 0 || indexNo > 9999) {
+            JOptionPane.showMessageDialog(this, "Index Number must be between 1 and 9999.", "Validation", JOptionPane.WARNING_MESSAGE);
+            tfIndexNumber.requestFocus();
             return;
         }
 
-        Date enrollDate;
-        try {
-            enrollDate = Date.valueOf(tfEnrollDate.getText().trim());
-        } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, "Enrollment Date must be YYYY-MM-DD format.", "Validation", JOptionPane.WARNING_MESSAGE);
+        java.time.LocalDate ldEnroll = dpEnrollDate.getDate();
+        if (ldEnroll == null) {
+            JOptionPane.showMessageDialog(this, "Please select an Enrollment Date.", "Validation", JOptionPane.WARNING_MESSAGE);
             return;
         }
+        Date enrollDate = Date.valueOf(ldEnroll);
 
         StudentClass sc = new StudentClass();
         sc.setStudentId     (s.getId());

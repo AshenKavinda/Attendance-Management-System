@@ -21,7 +21,7 @@ public class AttendancePanel extends JPanel {
 
     // Top controls
     private JComboBox<ClassRoom> cbClass;
-    private JTextField           tfDate;
+    private DatePickerField      dpDate;
     private JLabel               lblStatus;
 
     // Table
@@ -74,8 +74,8 @@ public class AttendancePanel extends JPanel {
         cbClass = new JComboBox<>();
         cbClass.setPreferredSize(new Dimension(280, 28));
 
-        tfDate = new JTextField(new java.text.SimpleDateFormat("yyyy-MM-dd")
-                     .format(new java.util.Date()), 12);
+        dpDate = new DatePickerField(java.time.LocalDate.now());
+        dpDate.setPreferredSize(new Dimension(160, 28));
 
         JButton btnLoad = styledButton("Load Attendance", new Color(52, 152, 219), 155);
         btnLoad.addActionListener(e -> loadAttendance());
@@ -84,8 +84,8 @@ public class AttendancePanel extends JPanel {
         lblStatus.setFont(new Font("Segoe UI", Font.ITALIC, 12));
         lblStatus.setForeground(new Color(100, 100, 100));
 
-        selRow.add(new JLabel("Class:"));  selRow.add(cbClass);
-        selRow.add(new JLabel("Date (YYYY-MM-DD):")); selRow.add(tfDate);
+        selRow.add(new JLabel("Class:")); selRow.add(cbClass);
+        selRow.add(new JLabel("Date:")); selRow.add(dpDate);
         selRow.add(btnLoad);
         selRow.add(lblStatus);
 
@@ -195,13 +195,12 @@ public class AttendancePanel extends JPanel {
             return;
         }
 
-        Date date;
-        try {
-            date = Date.valueOf(tfDate.getText().trim());
-        } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, "Date must be in YYYY-MM-DD format.", "Validation", JOptionPane.WARNING_MESSAGE);
+        java.time.LocalDate ldDate = dpDate.getDate();
+        if (ldDate == null) {
+            JOptionPane.showMessageDialog(this, "Please select a date.", "Validation", JOptionPane.WARNING_MESSAGE);
             return;
         }
+        Date date = Date.valueOf(ldDate);
 
         try {
             attendanceList = controller.getAttendanceSheet(cr.getId(), date);
@@ -255,16 +254,14 @@ public class AttendancePanel extends JPanel {
         // Stop any active cell editor to commit current edit
         if (table.isEditing()) table.getCellEditor().stopCellEditing();
 
-        ClassRoom cr = (ClassRoom) cbClass.getSelectedItem();
-        Date date;
-        try {
-            date = Date.valueOf(tfDate.getText().trim());
-        } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, "Invalid date.", "Error", JOptionPane.ERROR_MESSAGE);
+        java.time.LocalDate ldSave = dpDate.getDate();
+        if (ldSave == null) {
+            JOptionPane.showMessageDialog(this, "No date selected.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        Date date = Date.valueOf(ldSave);
 
-        // Sync table values back into the attendanceList
+        ClassRoom cr = (ClassRoom) cbClass.getSelectedItem();
         for (int i = 0; i < attendanceList.size(); i++) {
             Attendance a = attendanceList.get(i);
             a.setStatus ((String) tableModel.getValueAt(i, COL_STATUS));

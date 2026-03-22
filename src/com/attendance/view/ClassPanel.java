@@ -330,24 +330,57 @@ public class ClassPanel extends JPanel {
         String name = tfClassName.getText().trim();
         String code = tfClassCode.getText().trim();
 
+        // ── Class Name ──────────────────────────────────────────────────────
         if (name.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Class Name is required.", "Validation", JOptionPane.WARNING_MESSAGE);
+            showError("Class Name is required.");
             tfClassName.requestFocus();
             return null;
         }
+        if (name.length() < 2 || name.length() > 100) {
+            showError("Class Name must be between 2 and 100 characters.");
+            tfClassName.requestFocus();
+            return null;
+        }
+
+        // ── Class Code ──────────────────────────────────────────────────────
         if (code.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Class Code is required.", "Validation", JOptionPane.WARNING_MESSAGE);
+            showError("Class Code is required.");
+            tfClassCode.requestFocus();
+            return null;
+        }
+        if (code.length() < 2 || code.length() > 20) {
+            showError("Class Code must be between 2 and 20 characters.");
+            tfClassCode.requestFocus();
+            return null;
+        }
+        if (!code.matches("[A-Za-z0-9_\\-]+")) {
+            showError("Class Code may only contain letters, digits, hyphens, or underscores.");
             tfClassCode.requestFocus();
             return null;
         }
 
-        int year = 0;
+        // ── Section ─────────────────────────────────────────────────────────
+        String section = tfSection.getText().trim();
+        if (section.length() > 10) {
+            showError("Section must not exceed 10 characters.");
+            tfSection.requestFocus();
+            return null;
+        }
+
+        // ── Year ────────────────────────────────────────────────────────────
+        int year = java.time.Year.now().getValue();
         String yearStr = tfYear.getText().trim();
         if (!yearStr.isEmpty()) {
             try {
                 year = Integer.parseInt(yearStr);
+                if (year < 1900 || year > 2100) {
+                    showError("Year must be between 1900 and 2100.");
+                    tfYear.requestFocus();
+                    return null;
+                }
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Year must be a number.", "Validation", JOptionPane.WARNING_MESSAGE);
+                showError("Year must be a valid number (e.g. 2025).");
+                tfYear.requestFocus();
                 return null;
             }
         }
@@ -355,9 +388,13 @@ public class ClassPanel extends JPanel {
         ClassRoom c = new ClassRoom();
         c.setClassName(name);
         c.setClassCode(code);
-        c.setSection  (tfSection.getText().trim());
+        c.setSection  (section.isEmpty() ? null : section);
         c.setYear     (year);
         return c;
+    }
+
+    private void showError(String msg) {
+        JOptionPane.showMessageDialog(this, msg, "Validation Error", JOptionPane.WARNING_MESSAGE);
     }
 
     private void clearForm() {
