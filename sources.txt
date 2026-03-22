@@ -2,6 +2,7 @@ E:\NextGen\campus_projects\attendance_system\src\com\attendance\Main.java
 E:\NextGen\campus_projects\attendance_system\src\com\attendance\controller\AttendanceController.java
 E:\NextGen\campus_projects\attendance_system\src\com\attendance\controller\ClassController.java
 E:\NextGen\campus_projects\attendance_system\src\com\attendance\controller\DashboardController.java
+E:\NextGen\campus_projects\attendance_system\src\com\attendance\controller\ReportController.java
 E:\NextGen\campus_projects\attendance_system\src\com\attendance\controller\StudentClassController.java
 E:\NextGen\campus_projects\attendance_system\src\com\attendance\controller\StudentController.java
 E:\NextGen\campus_projects\attendance_system\src\com\attendance\model\Attendance.java
@@ -15,5 +16,6 @@ E:\NextGen\campus_projects\attendance_system\src\com\attendance\view\ClassPanel.
 E:\NextGen\campus_projects\attendance_system\src\com\attendance\view\DashboardPanel.java
 E:\NextGen\campus_projects\attendance_system\src\com\attendance\view\DatePickerField.java
 E:\NextGen\campus_projects\attendance_system\src\com\attendance\view\MainFrame.java
+E:\NextGen\campus_projects\attendance_system\src\com\attendance\view\ReportPanel.java
 E:\NextGen\campus_projects\attendance_system\src\com\attendance\view\StudentClassPanel.java
 E:\NextGen\campus_projects\attendance_system\src\com\attendance\view\StudentPanel.java

@@ -10,6 +10,7 @@ public class MainFrame extends JFrame {
     private static final String KEY_CLASSES    = "CLASSES";
     private static final String KEY_ASSIGNMENT = "ASSIGNMENT";
     private static final String KEY_ATTENDANCE = "ATTENDANCE";
+    private static final String KEY_REPORTS    = "REPORTS";
 
     private CardLayout cardLayout;
     private JPanel     contentPanel;
@@ -21,6 +22,7 @@ public class MainFrame extends JFrame {
     private ClassPanel        classPanel;
     private StudentClassPanel studentClassPanel;
     private AttendancePanel   attendancePanel;
+    private ReportPanel       reportPanel;
 
     public MainFrame(boolean dbConnected) {
         if (!dbConnected) {
@@ -109,7 +111,8 @@ public class MainFrame extends JFrame {
             {"  Students",     KEY_STUDENTS  },
             {"  Classes",      KEY_CLASSES   },
             {"  Assignments",  KEY_ASSIGNMENT},
-            {"  Attendance",   KEY_ATTENDANCE}
+            {"  Attendance",   KEY_ATTENDANCE},
+            {"  Reports",      KEY_REPORTS   }
         };
 
         navButtons = new JButton[items.length];
@@ -161,6 +164,9 @@ public class MainFrame extends JFrame {
         contentPanel.add(studentClassPanel, KEY_ASSIGNMENT);
         contentPanel.add(attendancePanel,   KEY_ATTENDANCE);
 
+        reportPanel = new ReportPanel();
+        contentPanel.add(reportPanel,       KEY_REPORTS);
+
         return contentPanel;
     }
 
@@ -178,10 +184,10 @@ public class MainFrame extends JFrame {
     // -------------------------------------------------------
     // Switch visible panel + highlight active nav button
     // -------------------------------------------------------
-    private void showPanel(String key) {
+    public void showPanel(String key) {
         cardLayout.show(contentPanel, key);
 
-        String[] keys = {KEY_DASHBOARD, KEY_STUDENTS, KEY_CLASSES, KEY_ASSIGNMENT, KEY_ATTENDANCE};
+        String[] keys = {KEY_DASHBOARD, KEY_STUDENTS, KEY_CLASSES, KEY_ASSIGNMENT, KEY_ATTENDANCE, KEY_REPORTS};
         for (int i = 0; i < keys.length; i++) {
             boolean active = keys[i].equals(key);
             navButtons[i].setBackground(active ? new Color(41, 128, 185) : new Color(21, 47, 72));
