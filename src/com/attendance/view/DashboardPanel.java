@@ -46,7 +46,7 @@ public class DashboardPanel extends JPanel {
         JLabel title = new JLabel("Dashboard");
         title.setFont(new Font("Segoe UI", Font.BOLD, 22));
         title.setForeground(new Color(26, 58, 89));
-        JButton btnRefresh = new JButton("Refresh");
+        JButton btnRefresh = styledButton("Refresh", new Color(52, 152, 219), 100);
         btnRefresh.addActionListener(e -> loadData());
         titleBar.add(title,      BorderLayout.WEST);
         titleBar.add(btnRefresh, BorderLayout.EAST);
@@ -154,6 +154,36 @@ public class DashboardPanel extends JPanel {
     // ============================================================
     // Load data from controllers
     // ============================================================
+
+    private JButton styledButton(String text, Color bg, int width) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
+                                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                Color base = isEnabled() ? bg : bg.darker();
+                if (getModel().isPressed())       g2.setColor(base.darker());
+                else if (getModel().isRollover()) g2.setColor(base.brighter());
+                else                              g2.setColor(base);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
+                g2.setFont(getFont());
+                g2.setColor(Color.WHITE);
+                java.awt.FontMetrics fm = g2.getFontMetrics();
+                int tx = (getWidth()  - fm.stringWidth(getText())) / 2;
+                int ty = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
+                g2.drawString(getText(), tx, ty);
+                g2.dispose();
+            }
+        };
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setPreferredSize(new Dimension(width, 34));
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setOpaque(false);
+        return btn;
+    }
 
     public void loadData() {
         try {

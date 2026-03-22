@@ -74,7 +74,7 @@ public class StudentPanel extends JPanel {
         JPanel searchRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         searchRow.setOpaque(false);
         tfSearch = new JTextField(20);
-        JButton btnSearch = new JButton("Search");
+        JButton btnSearch = styledButton("Search", new Color(52, 152, 219), 100);
         btnSearch.addActionListener(e -> doSearch());
         tfSearch.addActionListener(e -> doSearch());
         searchRow.add(new JLabel("Search:"));
@@ -130,8 +130,8 @@ public class StudentPanel extends JPanel {
         // Pagination bar
         JPanel pagBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 4));
         pagBar.setOpaque(false);
-        btnPrev     = new JButton("< Previous");
-        btnNext     = new JButton("Next >");
+        btnPrev     = styledButton("< Previous", new Color(108, 117, 125), 110);
+        btnNext     = styledButton("Next >",     new Color(108, 117, 125), 90);
         lblPageInfo = new JLabel("Page 1 of 1");
         lblPageInfo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         btnPrev.addActionListener(e -> { if (currentPage > 1)         { currentPage--; loadTable(); } });
@@ -178,16 +178,13 @@ public class StudentPanel extends JPanel {
         // Buttons row
         JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         btnRow.setOpaque(false);
-        btnAdd    = new JButton("Add Student");
-        btnUpdate = new JButton("Update");
-        btnDelete = new JButton("Delete");
-        btnClear  = new JButton("Clear");
+        btnAdd    = styledButton("Add Student", new Color(26, 58, 89),    120);
+        btnUpdate = styledButton("Update",      new Color(211, 84, 0),    100);
+        btnDelete = styledButton("Delete",      new Color(192, 57, 43),   100);
+        btnClear  = styledButton("Clear",       new Color(108, 117, 125), 100);
 
         btnUpdate.setEnabled(false);
         btnDelete.setEnabled(false);
-        btnDelete.setBackground(new Color(192, 57, 43));
-        btnDelete.setForeground(Color.WHITE);
-        btnDelete.setOpaque(true);
 
         btnAdd   .addActionListener(e -> doAdd());
         btnUpdate.addActionListener(e -> doUpdate());
@@ -205,6 +202,36 @@ public class StudentPanel extends JPanel {
         JLabel l = new JLabel(text);
         l.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         return l;
+    }
+
+    private JButton styledButton(String text, Color bg, int width) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
+                                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                Color base = isEnabled() ? bg : bg.darker();
+                if (getModel().isPressed())       g2.setColor(base.darker());
+                else if (getModel().isRollover()) g2.setColor(base.brighter());
+                else                              g2.setColor(base);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
+                g2.setFont(getFont());
+                g2.setColor(Color.WHITE);
+                java.awt.FontMetrics fm = g2.getFontMetrics();
+                int tx = (getWidth()  - fm.stringWidth(getText())) / 2;
+                int ty = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
+                g2.drawString(getText(), tx, ty);
+                g2.dispose();
+            }
+        };
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setPreferredSize(new Dimension(width, 34));
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setOpaque(false);
+        return btn;
     }
 
     // ============================================================

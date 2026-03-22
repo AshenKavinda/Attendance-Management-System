@@ -128,8 +128,8 @@ public class StudentClassPanel extends JPanel {
 
         JPanel pagBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 4));
         pagBar.setOpaque(false);
-        btnPrev     = new JButton("< Previous");
-        btnNext     = new JButton("Next >");
+        btnPrev     = styledButton("< Previous", new Color(108, 117, 125), 110);
+        btnNext     = styledButton("Next >",     new Color(108, 117, 125), 90);
         lblPageInfo = new JLabel("Page 1 of 1");
         lblPageInfo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         btnPrev.addActionListener(e -> { if (currentPage > 1)         { currentPage--; loadTable(); } });
@@ -164,16 +164,13 @@ public class StudentClassPanel extends JPanel {
 
         JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         btnRow.setOpaque(false);
-        btnAssign       = new JButton("Assign");
-        btnRemove       = new JButton("Remove");
-        btnChangeStatus = new JButton("Change Status");
-        btnClear        = new JButton("Clear");
+        btnAssign       = styledButton("Assign",        new Color(26, 58, 89),   130);
+        btnRemove       = styledButton("Remove",        new Color(192, 57, 43),  110);
+        btnChangeStatus = styledButton("Change Status", new Color(211, 84, 0),   145);
+        btnClear        = styledButton("Clear",         new Color(108, 117, 125),100);
 
         btnRemove      .setEnabled(false);
         btnChangeStatus.setEnabled(false);
-        btnRemove.setBackground(new Color(192, 57, 43));
-        btnRemove.setForeground(Color.WHITE);
-        btnRemove.setOpaque(true);
 
         btnAssign      .addActionListener(e -> doAssign());
         btnRemove      .addActionListener(e -> doRemove());
@@ -190,6 +187,39 @@ public class StudentClassPanel extends JPanel {
         JLabel l = new JLabel(text);
         l.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         return l;
+    }
+
+    /** Creates a colored JButton that renders correctly on Windows LAF (including disabled state). */
+    private JButton styledButton(String text, Color bg, int width) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
+                                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                // Background
+                Color base = isEnabled() ? bg : bg.darker();
+                if (getModel().isPressed())       g2.setColor(base.darker());
+                else if (getModel().isRollover()) g2.setColor(base.brighter());
+                else                              g2.setColor(base);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
+                // Text – always white, regardless of enabled/disabled state
+                g2.setFont(getFont());
+                g2.setColor(Color.WHITE);
+                java.awt.FontMetrics fm = g2.getFontMetrics();
+                int tx = (getWidth()  - fm.stringWidth(getText())) / 2;
+                int ty = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
+                g2.drawString(getText(), tx, ty);
+                g2.dispose();
+            }
+        };
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setPreferredSize(new Dimension(width, 34));
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setOpaque(false);
+        return btn;
     }
 
     // ============================================================

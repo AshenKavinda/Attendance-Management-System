@@ -77,10 +77,7 @@ public class AttendancePanel extends JPanel {
         tfDate = new JTextField(new java.text.SimpleDateFormat("yyyy-MM-dd")
                      .format(new java.util.Date()), 12);
 
-        JButton btnLoad = new JButton("Load Attendance");
-        btnLoad.setBackground(new Color(52, 152, 219));
-        btnLoad.setForeground(Color.WHITE);
-        btnLoad.setOpaque(true);
+        JButton btnLoad = styledButton("Load Attendance", new Color(52, 152, 219), 155);
         btnLoad.addActionListener(e -> loadAttendance());
 
         lblStatus = new JLabel("");
@@ -155,16 +152,13 @@ public class AttendancePanel extends JPanel {
         JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         btnRow.setOpaque(false);
 
-        btnMarkAllPresent = new JButton("Mark All Present");
-        btnMarkAllAbsent  = new JButton("Mark All Absent");
-        btnSave           = new JButton("Save Attendance");
+        btnMarkAllPresent = styledButton("Mark All Present", new Color(39, 174, 96),  145);
+        btnMarkAllAbsent  = styledButton("Mark All Absent",  new Color(192, 57, 43),  140);
+        btnSave           = styledButton("Save Attendance",  new Color(26, 58, 89),   145);
 
         btnMarkAllPresent.setEnabled(false);
         btnMarkAllAbsent .setEnabled(false);
         btnSave          .setEnabled(false);
-        btnSave.setBackground(new Color(39, 174, 96));
-        btnSave.setForeground(Color.WHITE);
-        btnSave.setOpaque(true);
 
         btnMarkAllPresent.addActionListener(e -> markAll("Present"));
         btnMarkAllAbsent .addActionListener(e -> markAll("Absent"));
@@ -287,6 +281,36 @@ public class AttendancePanel extends JPanel {
         } catch (RuntimeException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private JButton styledButton(String text, Color bg, int width) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
+                                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                Color base = isEnabled() ? bg : bg.darker();
+                if (getModel().isPressed())       g2.setColor(base.darker());
+                else if (getModel().isRollover()) g2.setColor(base.brighter());
+                else                              g2.setColor(base);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
+                g2.setFont(getFont());
+                g2.setColor(Color.WHITE);
+                java.awt.FontMetrics fm = g2.getFontMetrics();
+                int tx = (getWidth()  - fm.stringWidth(getText())) / 2;
+                int ty = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
+                g2.drawString(getText(), tx, ty);
+                g2.dispose();
+            }
+        };
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setPreferredSize(new Dimension(width, 34));
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setOpaque(false);
+        return btn;
     }
 
     private void updateSummaryLabel() {
