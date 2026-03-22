@@ -143,13 +143,6 @@ public class MainFrame extends JFrame {
 
         sidebar.add(Box.createVerticalGlue());
 
-        JLabel ver = new JLabel("v1.0  |  Java Swing  |  MySQL");
-        ver.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-        ver.setForeground(new Color(80, 110, 140));
-        ver.setBorder(BorderFactory.createEmptyBorder(8, 18, 10, 0));
-        ver.setAlignmentX(Component.LEFT_ALIGNMENT);
-        sidebar.add(ver);
-
         return sidebar;
     }
 
@@ -183,10 +176,7 @@ public class MainFrame extends JFrame {
         JPanel bar = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 4));
         bar.setBackground(new Color(215, 225, 235));
         bar.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(180, 195, 210)));
-        JLabel lbl = new JLabel("Java Swing  |  MySQL 8  |  MVC Architecture  |  Pure JDBC");
-        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        lbl.setForeground(new Color(80, 95, 115));
-        bar.add(lbl);
+        
         return bar;
     }
 
