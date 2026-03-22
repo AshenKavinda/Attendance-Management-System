@@ -1,142 +1,196 @@
 package com.attendance.view;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
+import javax.swing.*;
+import java.awt.*;
 
-/**
- * MainFrame - The main application window.
- * Shows the database connection status on startup.
- * Business logic panels will be added here later.
- */
 public class MainFrame extends JFrame {
 
-    // -------------------------------------------------------
-    // Constructor
-    // -------------------------------------------------------
+    private static final String KEY_DASHBOARD  = "DASHBOARD";
+    private static final String KEY_STUDENTS   = "STUDENTS";
+    private static final String KEY_CLASSES    = "CLASSES";
+    private static final String KEY_ASSIGNMENT = "ASSIGNMENT";
+    private static final String KEY_ATTENDANCE = "ATTENDANCE";
+
+    private CardLayout cardLayout;
+    private JPanel     contentPanel;
+    private JButton[]  navButtons;
+
+    // All panels
+    private DashboardPanel    dashboardPanel;
+    private StudentPanel      studentPanel;
+    private ClassPanel        classPanel;
+    private StudentClassPanel studentClassPanel;
+    private AttendancePanel   attendancePanel;
+
     public MainFrame(boolean dbConnected) {
-        initComponents(dbConnected);
+        if (!dbConnected) {
+            showDbError();
+        } else {
+            initUI();
+        }
     }
 
     // -------------------------------------------------------
-    // Build UI components
+    // Show a simple error screen if DB is not reachable
     // -------------------------------------------------------
-    private void initComponents(boolean dbConnected) {
-
-        // --- Frame settings ---
-        setTitle("Attendance Management System");
+    private void showDbError() {
+        setTitle("Attendance System - Connection Error");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(650, 420);
-        setLocationRelativeTo(null);   // Center on screen
+        setSize(520, 190);
+        setLocationRelativeTo(null);
         setResizable(false);
 
-        // --- Root panel ---
-        JPanel rootPanel = new JPanel(new BorderLayout(0, 0));
-        rootPanel.setBackground(new Color(245, 247, 251));
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(25, 25, 15, 25));
+        panel.setBackground(new Color(253, 245, 243));
 
-        // --- Top header bar ---
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(33, 97, 140));
-        headerPanel.setBorder(BorderFactory.createEmptyBorder(18, 25, 18, 25));
+        JLabel msg = new JLabel("<html><b style='color:#C0392B;font-size:14px;'>"
+                + "Database Connection Failed</b><br><br>"
+                + "The app could not connect to MySQL.<br>"
+                + "Check the console output for details, fix your <b>.env</b> settings, "
+                + "and restart the application.</html>");
+        msg.setFont(new Font("Segoe UI", Font.PLAIN, 13));
 
-        JLabel titleLabel = new JLabel("Attendance Management System");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        titleLabel.setForeground(Color.WHITE);
+        JButton btnExit = new JButton("Exit");
+        btnExit.addActionListener(e -> System.exit(0));
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        btnPanel.setOpaque(false);
+        btnPanel.add(btnExit);
 
-        JLabel subTitleLabel = new JLabel("Campus Attendance Tracking");
-        subTitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        subTitleLabel.setForeground(new Color(200, 220, 240));
-
-        JPanel headerText = new JPanel(new GridLayout(2, 1, 0, 4));
-        headerText.setOpaque(false);
-        headerText.add(titleLabel);
-        headerText.add(subTitleLabel);
-        headerPanel.add(headerText, BorderLayout.WEST);
-
-        // --- Center content panel ---
-        JPanel centerPanel = new JPanel(new BorderLayout(10, 10));
-        centerPanel.setBackground(new Color(245, 247, 251));
-        centerPanel.setBorder(BorderFactory.createEmptyBorder(30, 40, 20, 40));
-
-        // DB Status card
-        JPanel statusCard = buildStatusCard(dbConnected);
-        centerPanel.add(statusCard, BorderLayout.NORTH);
-
-        // Placeholder info label
-        JLabel infoLabel = new JLabel(
-            "<html><center>Project structure created.<br>"
-            + "Business logic modules will appear here.</center></html>",
-            SwingConstants.CENTER
-        );
-        infoLabel.setFont(new Font("Segoe UI", Font.ITALIC, 13));
-        infoLabel.setForeground(new Color(120, 130, 145));
-        centerPanel.add(infoLabel, BorderLayout.CENTER);
-
-        // --- Bottom status bar ---
-        JPanel statusBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
-        statusBar.setBackground(new Color(210, 220, 230));
-        statusBar.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(180, 190, 205)));
-
-        JLabel footerLabel = new JLabel("Java Swing  |  MySQL  |  MVC Architecture");
-        footerLabel.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        footerLabel.setForeground(new Color(80, 90, 110));
-        statusBar.add(footerLabel);
-
-        // --- Assemble ---
-        rootPanel.add(headerPanel, BorderLayout.NORTH);
-        rootPanel.add(centerPanel, BorderLayout.CENTER);
-        rootPanel.add(statusBar,   BorderLayout.SOUTH);
-
-        add(rootPanel);
+        panel.add(msg,      BorderLayout.CENTER);
+        panel.add(btnPanel, BorderLayout.SOUTH);
+        add(panel);
+        setVisible(true);
     }
 
     // -------------------------------------------------------
-    // Build the DB status indicator card
+    // Main application window
     // -------------------------------------------------------
-    private JPanel buildStatusCard(boolean connected) {
+    private void initUI() {
+        setTitle("Attendance Management System");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(1150, 720);
+        setMinimumSize(new Dimension(950, 600));
+        setLocationRelativeTo(null);
 
-        JPanel card = new JPanel(new BorderLayout(15, 0));
-        card.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(connected ? new Color(39, 174, 96) : new Color(192, 57, 43), 2),
-            BorderFactory.createEmptyBorder(15, 20, 15, 20)
-        ));
-        card.setBackground(connected ? new Color(232, 248, 240) : new Color(252, 235, 230));
+        setLayout(new BorderLayout());
+        add(buildSidebar(),      BorderLayout.WEST);
+        add(buildContentPanel(), BorderLayout.CENTER);
+        add(buildStatusBar(),    BorderLayout.SOUTH);
 
-        // Left icon text
-        JLabel iconLabel = new JLabel(connected ? "✔" : "✘");
-        iconLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
-        iconLabel.setForeground(connected ? new Color(39, 174, 96) : new Color(192, 57, 43));
+        showPanel(KEY_DASHBOARD);
+    }
 
-        // Right text block
-        JPanel textBlock = new JPanel(new GridLayout(2, 1, 0, 3));
-        textBlock.setOpaque(false);
+    // -------------------------------------------------------
+    // Left sidebar navigation
+    // -------------------------------------------------------
+    private JPanel buildSidebar() {
+        JPanel sidebar = new JPanel();
+        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
+        sidebar.setBackground(new Color(21, 47, 72));
+        sidebar.setPreferredSize(new Dimension(205, 0));
 
-        JLabel statusTitle = new JLabel("Database Connection");
-        statusTitle.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        statusTitle.setForeground(new Color(40, 50, 60));
+        // Logo / title block
+        JPanel logo = new JPanel(new BorderLayout());
+        logo.setBackground(new Color(15, 35, 55));
+        logo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 75));
+        logo.setBorder(BorderFactory.createEmptyBorder(14, 18, 14, 18));
+        JLabel logoText = new JLabel("<html><b>Attendance</b><br>"
+                + "<span style='font-size:10px;color:#8AACCC;'>Management System</span></html>");
+        logoText.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        logoText.setForeground(Color.WHITE);
+        logo.add(logoText, BorderLayout.CENTER);
+        sidebar.add(logo);
+        sidebar.add(Box.createVerticalStrut(8));
 
-        JLabel statusDetail = new JLabel(
-            connected
-                ? "Connected to MySQL successfully. App is ready."
-                : "Could not connect to MySQL. Check console output for details."
-        );
-        statusDetail.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        statusDetail.setForeground(connected ? new Color(30, 120, 60) : new Color(150, 40, 30));
+        // Nav items: [label, card key]
+        String[][] items = {
+            {"  Dashboard",    KEY_DASHBOARD },
+            {"  Students",     KEY_STUDENTS  },
+            {"  Classes",      KEY_CLASSES   },
+            {"  Assignments",  KEY_ASSIGNMENT},
+            {"  Attendance",   KEY_ATTENDANCE}
+        };
 
-        textBlock.add(statusTitle);
-        textBlock.add(statusDetail);
+        navButtons = new JButton[items.length];
+        for (int i = 0; i < items.length; i++) {
+            final String key = items[i][1];
+            JButton btn = new JButton(items[i][0]);
+            btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            btn.setForeground(new Color(170, 200, 230));
+            btn.setBackground(new Color(21, 47, 72));
+            btn.setBorderPainted(false);
+            btn.setFocusPainted(false);
+            btn.setHorizontalAlignment(SwingConstants.LEFT);
+            btn.setBorder(BorderFactory.createEmptyBorder(11, 22, 11, 22));
+            btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+            btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            btn.addActionListener(e -> showPanel(key));
+            navButtons[i] = btn;
+            sidebar.add(btn);
+        }
 
-        card.add(iconLabel, BorderLayout.WEST);
-        card.add(textBlock, BorderLayout.CENTER);
+        sidebar.add(Box.createVerticalGlue());
 
-        return card;
+        JLabel ver = new JLabel("  v1.0  |  Java Swing  |  MySQL");
+        ver.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        ver.setForeground(new Color(80, 110, 140));
+        ver.setBorder(BorderFactory.createEmptyBorder(8, 14, 10, 14));
+        sidebar.add(ver);
+
+        return sidebar;
+    }
+
+    // -------------------------------------------------------
+    // CardLayout content area
+    // -------------------------------------------------------
+    private JPanel buildContentPanel() {
+        cardLayout   = new CardLayout();
+        contentPanel = new JPanel(cardLayout);
+        contentPanel.setBackground(new Color(245, 247, 251));
+
+        dashboardPanel    = new DashboardPanel();
+        studentPanel      = new StudentPanel();
+        classPanel        = new ClassPanel();
+        studentClassPanel = new StudentClassPanel();
+        attendancePanel   = new AttendancePanel();
+
+        contentPanel.add(dashboardPanel,    KEY_DASHBOARD);
+        contentPanel.add(studentPanel,      KEY_STUDENTS);
+        contentPanel.add(classPanel,        KEY_CLASSES);
+        contentPanel.add(studentClassPanel, KEY_ASSIGNMENT);
+        contentPanel.add(attendancePanel,   KEY_ATTENDANCE);
+
+        return contentPanel;
+    }
+
+    private JPanel buildStatusBar() {
+        JPanel bar = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 4));
+        bar.setBackground(new Color(215, 225, 235));
+        bar.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(180, 195, 210)));
+        JLabel lbl = new JLabel("Java Swing  |  MySQL 8  |  MVC Architecture  |  Pure JDBC");
+        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lbl.setForeground(new Color(80, 95, 115));
+        bar.add(lbl);
+        return bar;
+    }
+
+    // -------------------------------------------------------
+    // Switch visible panel + highlight active nav button
+    // -------------------------------------------------------
+    private void showPanel(String key) {
+        cardLayout.show(contentPanel, key);
+
+        String[] keys = {KEY_DASHBOARD, KEY_STUDENTS, KEY_CLASSES, KEY_ASSIGNMENT, KEY_ATTENDANCE};
+        for (int i = 0; i < keys.length; i++) {
+            boolean active = keys[i].equals(key);
+            navButtons[i].setBackground(active ? new Color(41, 128, 185) : new Color(21, 47, 72));
+            navButtons[i].setForeground(active ? Color.WHITE : new Color(170, 200, 230));
+        }
+
+        // Refresh dashboard data every time it is shown
+        if (KEY_DASHBOARD.equals(key)) {
+            dashboardPanel.loadData();
+        }
     }
 }

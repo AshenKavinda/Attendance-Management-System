@@ -1,4 +1,0 @@
-E:\NextGen\campus_projects\attendance_system\src\com\attendance\Main.java
-E:\NextGen\campus_projects\attendance_system\src\com\attendance\utils\DBConnection.java
-E:\NextGen\campus_projects\attendance_system\src\com\attendance\utils\EnvLoader.java
-E:\NextGen\campus_projects\attendance_system\src\com\attendance\view\MainFrame.java
