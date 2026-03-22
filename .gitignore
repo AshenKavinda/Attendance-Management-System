@@ -1,0 +1,15 @@
+# Compiled class files
+bin/
+
+# Environment file (contains passwords - never commit this!)
+.env
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+*.class
+
+# OS files
+Thumbs.db
+.DS_Store
