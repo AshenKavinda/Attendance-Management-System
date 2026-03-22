@@ -19,10 +19,17 @@ public class AttendancePanel extends JPanel {
     // Attendance data for the currently loaded class+date
     private List<Attendance> attendanceList;
 
+    // Real-time refresh
+    private javax.swing.Timer refreshTimer;
+
     // Top controls
     private JComboBox<ClassRoom> cbClass;
+    private JComboBox<String>    cbDate;   // recorded dates for the selected class
     private DatePickerField      dpDate;
     private JLabel               lblStatus;
+
+    // Suppress date-dropdown reload while programmatically refreshing cbClass
+    private boolean suppressDateLoad = false;
 
     // Table
     private JTable            table;
@@ -44,6 +51,7 @@ public class AttendancePanel extends JPanel {
     public AttendancePanel() {
         initUI();
         loadClassDropdown();
+        startRefreshTimer();
     }
 
     // ============================================================
@@ -67,12 +75,29 @@ public class AttendancePanel extends JPanel {
         title.setFont(new Font("Segoe UI", Font.BOLD, 20));
         title.setForeground(new Color(26, 58, 89));
 
-        // Selector row
-        JPanel selRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        selRow.setOpaque(false);
+        // ── Row 1: class selector + recorded-date history ──
+        JPanel row1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 2));
+        row1.setOpaque(false);
 
         cbClass = new JComboBox<>();
-        cbClass.setPreferredSize(new Dimension(280, 28));
+        cbClass.setPreferredSize(new Dimension(240, 28));
+        cbClass.addActionListener(e -> { if (!suppressDateLoad) loadDateDropdown(); });
+
+        cbDate = new JComboBox<>();
+        cbDate.setPreferredSize(new Dimension(180, 28));
+        cbDate.addActionListener(e -> {
+            String sel = (String) cbDate.getSelectedItem();
+            if (sel != null && sel.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                dpDate.setDate(java.time.LocalDate.parse(sel));
+            }
+        });
+
+        row1.add(new JLabel("Class:"));           row1.add(cbClass);
+        row1.add(new JLabel("Recorded Dates:"));  row1.add(cbDate);
+
+        // ── Row 2: manual date picker + load button + status ──
+        JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 2));
+        row2.setOpaque(false);
 
         dpDate = new DatePickerField(java.time.LocalDate.now());
         dpDate.setPreferredSize(new Dimension(160, 28));
@@ -84,13 +109,17 @@ public class AttendancePanel extends JPanel {
         lblStatus.setFont(new Font("Segoe UI", Font.ITALIC, 12));
         lblStatus.setForeground(new Color(100, 100, 100));
 
-        selRow.add(new JLabel("Class:")); selRow.add(cbClass);
-        selRow.add(new JLabel("Date:")); selRow.add(dpDate);
-        selRow.add(btnLoad);
-        selRow.add(lblStatus);
+        row2.add(new JLabel("Date:")); row2.add(dpDate);
+        row2.add(btnLoad);
+        row2.add(lblStatus);
 
-        outer.add(title,  BorderLayout.NORTH);
-        outer.add(selRow, BorderLayout.CENTER);
+        JPanel selPanel = new JPanel(new java.awt.GridLayout(2, 1, 0, 2));
+        selPanel.setOpaque(false);
+        selPanel.add(row1);
+        selPanel.add(row2);
+
+        outer.add(title,    BorderLayout.NORTH);
+        outer.add(selPanel, BorderLayout.CENTER);
         return outer;
     }
 
@@ -188,6 +217,57 @@ public class AttendancePanel extends JPanel {
         }
     }
 
+    // ============================================================
+    // Real-time refresh (polls DB every 5 seconds)
+    // ============================================================
+
+    private void startRefreshTimer() {
+        refreshTimer = new javax.swing.Timer(5000, e -> refreshClassDropdown());
+        refreshTimer.start();
+    }
+
+    /** Repopulates the class dropdown while preserving the current selection. */
+    private void refreshClassDropdown() {
+        ClassRoom selected = (ClassRoom) cbClass.getSelectedItem();
+        try {
+            List<ClassRoom> classes = classCtrl.getAllClassesForDropdown();
+            suppressDateLoad = true;
+            cbClass.removeAllItems();
+            for (ClassRoom c : classes) cbClass.addItem(c);
+            if (selected != null) {
+                for (int i = 0; i < cbClass.getItemCount(); i++) {
+                    if (cbClass.getItemAt(i).getId() == selected.getId()) {
+                        cbClass.setSelectedIndex(i);
+                        break;
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            System.err.println("Error refreshing class dropdown: " + ex.getMessage());
+        } finally {
+            suppressDateLoad = false;
+            loadDateDropdown();
+        }
+    }
+
+    /**
+     * Populates cbDate with all distinct dates that have attendance records
+     * for the currently selected class, newest-first.
+     * The first item is a placeholder; real dates are in yyyy-MM-dd format.
+     */
+    private void loadDateDropdown() {
+        ClassRoom cr = (ClassRoom) cbClass.getSelectedItem();
+        cbDate.removeAllItems();
+        cbDate.addItem("── Select Recorded Date ──");
+        if (cr == null) return;
+        try {
+            List<java.sql.Date> dates = controller.getAttendanceDates(cr.getId());
+            for (java.sql.Date d : dates) cbDate.addItem(d.toString());
+        } catch (Exception ex) {
+            System.err.println("Error loading attendance dates: " + ex.getMessage());
+        }
+    }
+
     private void loadAttendance() {
         ClassRoom cr = (ClassRoom) cbClass.getSelectedItem();
         if (cr == null) {
@@ -273,7 +353,8 @@ public class AttendancePanel extends JPanel {
             JOptionPane.showMessageDialog(this,
                 "Attendance saved for " + cr.getClassName() + " on " + date,
                 "Saved", JOptionPane.INFORMATION_MESSAGE);
-            // Reload to get the new IDs assigned by DB
+            // Reload to get the new IDs assigned by DB; also refresh date history
+            loadDateDropdown();
             loadAttendance();
         } catch (RuntimeException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

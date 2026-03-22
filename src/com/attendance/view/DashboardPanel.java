@@ -13,6 +13,9 @@ public class DashboardPanel extends JPanel {
 
     private final DashboardController controller = new DashboardController();
 
+    // Real-time refresh
+    private javax.swing.Timer refreshTimer;
+
     // Stat card value labels
     private JLabel lblStudents;
     private JLabel lblClasses;
@@ -29,6 +32,7 @@ public class DashboardPanel extends JPanel {
     public DashboardPanel() {
         initUI();
         loadData();
+        startRefreshTimer();
     }
 
     // ============================================================
@@ -183,6 +187,15 @@ public class DashboardPanel extends JPanel {
         btn.setFocusPainted(false);
         btn.setOpaque(false);
         return btn;
+    }
+
+    // ============================================================
+    // Real-time refresh (polls DB every 30 seconds)
+    // ============================================================
+
+    private void startRefreshTimer() {
+        refreshTimer = new javax.swing.Timer(30000, e -> loadData());
+        refreshTimer.start();
     }
 
     public void loadData() {

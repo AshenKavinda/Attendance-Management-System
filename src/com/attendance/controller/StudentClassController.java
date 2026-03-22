@@ -17,8 +17,8 @@ public class StudentClassController {
     // -------------------------------------------------------
     public int getTotalByClass(int classId) {
         String sql = "SELECT COUNT(*) FROM student_class WHERE class_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, classId);
             ResultSet rs = stmt.executeQuery();
@@ -47,8 +47,8 @@ public class StudentClassController {
                    + "WHERE sc.class_id = ? "
                    + "ORDER BY sc.index_number LIMIT ? OFFSET ?";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, classId);
             stmt.setInt(2, PAGE_SIZE);
@@ -83,8 +83,8 @@ public class StudentClassController {
         String sql = "SELECT id, first_name, last_name FROM students "
                    + "WHERE id NOT IN (SELECT student_id FROM student_class WHERE class_id = ?) "
                    + "ORDER BY first_name, last_name";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, classId);
             ResultSet rs = stmt.executeQuery();
@@ -106,8 +106,8 @@ public class StudentClassController {
     // -------------------------------------------------------
     public int getNextIndexNumber(int classId) {
         String sql = "SELECT COALESCE(MAX(index_number), 0) + 1 FROM student_class WHERE class_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, classId);
             ResultSet rs = stmt.executeQuery();
@@ -125,8 +125,8 @@ public class StudentClassController {
     public boolean assignStudent(StudentClass sc) {
         String sql = "INSERT INTO student_class (student_id, class_id, index_number, enrollment_date, status) "
                    + "VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt   (1, sc.getStudentId());
             stmt.setInt   (2, sc.getClassId());
@@ -148,8 +148,8 @@ public class StudentClassController {
     // -------------------------------------------------------
     public boolean updateStatus(int id, String status) {
         String sql = "UPDATE student_class SET status=? WHERE id=?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, status);
             stmt.setInt   (2, id);
@@ -166,8 +166,8 @@ public class StudentClassController {
     // -------------------------------------------------------
     public boolean removeAssignment(int id) {
         String sql = "DELETE FROM student_class WHERE id=?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
             return stmt.executeUpdate() > 0;

@@ -17,8 +17,8 @@ public class StudentController {
     public int getTotalStudentsFiltered(String search) {
         String sql = "SELECT COUNT(*) FROM students "
                    + "WHERE first_name LIKE ? OR last_name LIKE ? OR email LIKE ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             String like = "%" + search + "%";
             stmt.setString(1, like);
@@ -44,8 +44,8 @@ public class StudentController {
                    + "WHERE first_name LIKE ? OR last_name LIKE ? OR email LIKE ? "
                    + "ORDER BY id DESC LIMIT ? OFFSET ?";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             String like = "%" + search + "%";
             stmt.setString(1, like);
@@ -67,8 +67,8 @@ public class StudentController {
     // -------------------------------------------------------
     public Student getStudentById(int id) {
         String sql = "SELECT * FROM students WHERE id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
@@ -86,8 +86,8 @@ public class StudentController {
     public boolean addStudent(Student s) {
         String sql = "INSERT INTO students (first_name, last_name, date_of_birth, gender, email, phone, address) "
                    + "VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, s.getFirstName());
             stmt.setString(2, s.getLastName());
@@ -112,8 +112,8 @@ public class StudentController {
     public boolean updateStudent(Student s) {
         String sql = "UPDATE students SET first_name=?, last_name=?, date_of_birth=?, "
                    + "gender=?, email=?, phone=?, address=? WHERE id=?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, s.getFirstName());
             stmt.setString(2, s.getLastName());
@@ -138,8 +138,8 @@ public class StudentController {
     // -------------------------------------------------------
     public boolean deleteStudent(int id) {
         String sql = "DELETE FROM students WHERE id=?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
             return stmt.executeUpdate() > 0;
@@ -156,8 +156,8 @@ public class StudentController {
     public List<Student> getAllStudentsForDropdown() {
         List<Student> list = new ArrayList<>();
         String sql = "SELECT id, first_name, last_name FROM students ORDER BY first_name, last_name";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {

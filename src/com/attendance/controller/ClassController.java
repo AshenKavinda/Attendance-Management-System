@@ -17,8 +17,8 @@ public class ClassController {
     public int getTotalClassesFiltered(String search) {
         String sql = "SELECT COUNT(*) FROM classes "
                    + "WHERE class_name LIKE ? OR class_code LIKE ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             String like = "%" + search + "%";
             stmt.setString(1, like);
@@ -43,8 +43,8 @@ public class ClassController {
                    + "WHERE class_name LIKE ? OR class_code LIKE ? "
                    + "ORDER BY id DESC LIMIT ? OFFSET ?";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             String like = "%" + search + "%";
             stmt.setString(1, like);
@@ -65,8 +65,8 @@ public class ClassController {
     // -------------------------------------------------------
     public boolean addClass(ClassRoom c) {
         String sql = "INSERT INTO classes (class_name, class_code, section, year) VALUES (?, ?, ?, ?)";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, c.getClassName());
             stmt.setString(2, c.getClassCode());
@@ -87,8 +87,8 @@ public class ClassController {
     // -------------------------------------------------------
     public boolean updateClass(ClassRoom c) {
         String sql = "UPDATE classes SET class_name=?, class_code=?, section=?, year=? WHERE id=?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, c.getClassName());
             stmt.setString(2, c.getClassCode());
@@ -110,8 +110,8 @@ public class ClassController {
     // -------------------------------------------------------
     public boolean deleteClass(int id) {
         String sql = "DELETE FROM classes WHERE id=?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
             return stmt.executeUpdate() > 0;
@@ -128,8 +128,8 @@ public class ClassController {
     public List<ClassRoom> getAllClassesForDropdown() {
         List<ClassRoom> list = new ArrayList<>();
         String sql = "SELECT * FROM classes ORDER BY class_name";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) list.add(mapRow(rs));

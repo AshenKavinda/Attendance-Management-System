@@ -23,6 +23,10 @@ public class StudentClassPanel extends JPanel {
     private int    selectedAssignmentId = -1;
     private List<StudentClass> currentList;
 
+    // Real-time refresh
+    private boolean               suppressClassChange = false;
+    private javax.swing.Timer     refreshTimer;
+
     // Class selector
     private JComboBox<ClassRoom> cbClass;
 
@@ -50,6 +54,7 @@ public class StudentClassPanel extends JPanel {
     public StudentClassPanel() {
         initUI();
         loadClassDropdown();
+        startRefreshTimer();
     }
 
     // ============================================================
@@ -238,6 +243,7 @@ public class StudentClassPanel extends JPanel {
     }
 
     private void onClassSelected() {
+        if (suppressClassChange) return;
         currentPage = 1;
         clearForm();
         loadTable();
@@ -402,5 +408,66 @@ public class StudentClassPanel extends JPanel {
         btnAssign      .setEnabled(true);
         btnRemove      .setEnabled(false);
         btnChangeStatus.setEnabled(false);
+    }
+
+    // ============================================================
+    // Real-time refresh (polls DB every 5 seconds)
+    // ============================================================
+
+    private void startRefreshTimer() {
+        refreshTimer = new javax.swing.Timer(5000, e -> {
+            refreshClassDropdown();
+            refreshStudentDropdown();
+        });
+        refreshTimer.start();
+    }
+
+    /** Repopulates the class dropdown while preserving the current selection. */
+    private void refreshClassDropdown() {
+        ClassRoom selected = getSelectedClass();
+        try {
+            List<ClassRoom> classes = classCtrl.getAllClassesForDropdown();
+            suppressClassChange = true;
+            cbClass.removeAllItems();
+            for (ClassRoom c : classes) cbClass.addItem(c);
+            if (selected != null) {
+                for (int i = 0; i < cbClass.getItemCount(); i++) {
+                    if (cbClass.getItemAt(i).getId() == selected.getId()) {
+                        cbClass.setSelectedIndex(i);
+                        break;
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            System.err.println("Error refreshing class dropdown: " + ex.getMessage());
+        } finally {
+            suppressClassChange = false;
+        }
+    }
+
+    /**
+     * Repopulates the student dropdown while preserving the currently
+     * selected student. Does NOT overwrite the index-number field so
+     * that any value the user is typing is left untouched.
+     */
+    private void refreshStudentDropdown() {
+        ClassRoom cr = getSelectedClass();
+        if (cr == null) return;
+        try {
+            Student currentStudent = (Student) cbStudent.getSelectedItem();
+            List<Student> students = controller.getUnassignedStudents(cr.getId());
+            cbStudent.removeAllItems();
+            for (Student s : students) cbStudent.addItem(s);
+            if (currentStudent != null) {
+                for (int i = 0; i < cbStudent.getItemCount(); i++) {
+                    if (cbStudent.getItemAt(i).getId() == currentStudent.getId()) {
+                        cbStudent.setSelectedIndex(i);
+                        break;
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            System.err.println("Error refreshing student dropdown: " + ex.getMessage());
+        }
     }
 }

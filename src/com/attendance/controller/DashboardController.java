@@ -43,8 +43,8 @@ public class DashboardController {
         String sql = "SELECT ROUND("
                    +   "100.0 * SUM(CASE WHEN status = 'Present' THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0)"
                    + ", 1) FROM attendance";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             if (rs.next()) return rs.getDouble(1);
@@ -72,8 +72,8 @@ public class DashboardController {
                    + "GROUP BY c.id, c.class_name, c.class_code "
                    + "ORDER BY c.class_name";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -111,8 +111,8 @@ public class DashboardController {
                    + "HAVING COUNT(a.id) > 0 "
                    + "ORDER BY pct ASC LIMIT 5";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -141,8 +141,8 @@ public class DashboardController {
                    + "WHERE status = 'Present' AND date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) "
                    + "GROUP BY date ORDER BY date";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) map.put(rs.getString("day"), rs.getInt("cnt"));
@@ -157,8 +157,8 @@ public class DashboardController {
     // Helper: run a COUNT-style query and return first int
     // -------------------------------------------------------
     private int querySingleInt(String sql) {
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             if (rs.next()) return rs.getInt(1);

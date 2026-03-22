@@ -26,8 +26,8 @@ public class AttendanceController {
                    + "WHERE sc.class_id = ? AND sc.status = 'Active' "
                    + "ORDER BY sc.index_number";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setDate(1, date);
             stmt.setInt (2, classId);
@@ -60,6 +60,26 @@ public class AttendanceController {
             throw new RuntimeException("Failed to load attendance sheet: " + e.getMessage());
         }
         return list;
+    }
+
+    // -------------------------------------------------------
+    // Return all distinct dates that have attendance records
+    // for the given class, sorted newest-first.
+    // -------------------------------------------------------
+    public List<java.sql.Date> getAttendanceDates(int classId) {
+        List<java.sql.Date> dates = new ArrayList<>();
+        String sql = "SELECT DISTINCT a.date FROM attendance a "
+                   + "JOIN student_class sc ON a.student_class_id = sc.id "
+                   + "WHERE sc.class_id = ? ORDER BY a.date DESC";
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, classId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) dates.add(rs.getDate("date"));
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load attendance dates: " + e.getMessage());
+        }
+        return dates;
     }
 
     // -------------------------------------------------------
@@ -112,7 +132,6 @@ public class AttendanceController {
             if (conn != null) {
                 try {
                     conn.setAutoCommit(true);
-                    conn.close();
                 } catch (SQLException ex) {
                     System.err.println("[AttendanceController] Cleanup error: " + ex.getMessage());
                 }
