@@ -92,27 +92,34 @@ public class MainFrame extends JFrame {
         sidebar.setBackground(new Color(21, 47, 72));
         sidebar.setPreferredSize(new Dimension(205, 0));
 
-        // Logo / title block
-        JPanel logo = new JPanel(new BorderLayout());
+        // Logo / title block (align left)
+        JPanel logo = new JPanel();
+        logo.setLayout(new BoxLayout(logo, BoxLayout.Y_AXIS));
         logo.setBackground(new Color(15, 35, 55));
         logo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 75));
-        logo.setBorder(BorderFactory.createEmptyBorder(14, 18, 14, 18));
-        JLabel logoText = new JLabel("<html><b>Attendance</b><br>"
-                + "<span style='font-size:10px;color:#8AACCC;'>Management System</span></html>");
-        logoText.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        logoText.setForeground(Color.WHITE);
-        logo.add(logoText, BorderLayout.CENTER);
+        logo.setBorder(BorderFactory.createEmptyBorder(14, 18, 0, 0));
+        JLabel logoTitle = new JLabel("Attendance");
+        logoTitle.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        logoTitle.setForeground(Color.WHITE);
+        logoTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JLabel logoSub = new JLabel("Management System");
+        logoSub.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        logoSub.setForeground(new Color(138, 172, 204));
+        logoSub.setAlignmentX(Component.LEFT_ALIGNMENT);
+        logo.add(logoTitle);
+        logo.add(logoSub);
+        logo.setAlignmentX(Component.LEFT_ALIGNMENT);
         sidebar.add(logo);
         sidebar.add(Box.createVerticalStrut(8));
 
         // Nav items: [label, card key]
         String[][] items = {
-            {"  Dashboard",    KEY_DASHBOARD },
-            {"  Students",     KEY_STUDENTS  },
-            {"  Classes",      KEY_CLASSES   },
-            {"  Assignments",  KEY_ASSIGNMENT},
-            {"  Attendance",   KEY_ATTENDANCE},
-            {"  Reports",      KEY_REPORTS   }
+            {"Dashboard",    KEY_DASHBOARD },
+            {"Students",     KEY_STUDENTS  },
+            {"Classes",      KEY_CLASSES   },
+            {"Assignments",  KEY_ASSIGNMENT},
+            {"Attendance",   KEY_ATTENDANCE},
+            {"Reports",      KEY_REPORTS   }
         };
 
         navButtons = new JButton[items.length];
@@ -125,9 +132,10 @@ public class MainFrame extends JFrame {
             btn.setBorderPainted(false);
             btn.setFocusPainted(false);
             btn.setHorizontalAlignment(SwingConstants.LEFT);
-            btn.setBorder(BorderFactory.createEmptyBorder(11, 22, 11, 22));
+            btn.setBorder(BorderFactory.createEmptyBorder(11, 18, 11, 0));
             btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
             btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            btn.setAlignmentX(Component.LEFT_ALIGNMENT);
             btn.addActionListener(e -> showPanel(key));
             navButtons[i] = btn;
             sidebar.add(btn);
@@ -135,10 +143,11 @@ public class MainFrame extends JFrame {
 
         sidebar.add(Box.createVerticalGlue());
 
-        JLabel ver = new JLabel("  v1.0  |  Java Swing  |  MySQL");
+        JLabel ver = new JLabel("v1.0  |  Java Swing  |  MySQL");
         ver.setFont(new Font("Segoe UI", Font.PLAIN, 10));
         ver.setForeground(new Color(80, 110, 140));
-        ver.setBorder(BorderFactory.createEmptyBorder(8, 14, 10, 14));
+        ver.setBorder(BorderFactory.createEmptyBorder(8, 18, 10, 0));
+        ver.setAlignmentX(Component.LEFT_ALIGNMENT);
         sidebar.add(ver);
 
         return sidebar;
