@@ -132,9 +132,20 @@ public class DashboardPanel extends JPanel {
         JTable t = new JTable(m);
         t.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         t.setRowHeight(28);
-        t.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        t.getTableHeader().setBackground(new Color(26, 58, 89));
-        t.getTableHeader().setForeground(Color.WHITE);
+        t.getTableHeader().setDefaultRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable tbl, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int col) {
+                JLabel lbl = (JLabel) super.getTableCellRendererComponent(
+                        tbl, value, isSelected, hasFocus, row, col);
+                lbl.setBackground(new Color(26, 58, 89));
+                lbl.setForeground(Color.WHITE);
+                lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
+                lbl.setOpaque(true);
+                lbl.setHorizontalAlignment(JLabel.CENTER);
+                return lbl;
+            }
+        });
         t.setShowGrid(true);
         t.setGridColor(new Color(220, 225, 235));
         return t;

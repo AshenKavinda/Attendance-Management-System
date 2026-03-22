@@ -6,7 +6,7 @@ import com.attendance.model.Attendance;
 import com.attendance.model.ClassRoom;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.*;
 import java.awt.*;
 import java.sql.Date;
 import java.util.List;
@@ -112,9 +112,20 @@ public class AttendancePanel extends JPanel {
         table = new JTable(tableModel);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         table.setRowHeight(30);
-        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        table.getTableHeader().setBackground(new Color(26, 58, 89));
-        table.getTableHeader().setForeground(Color.WHITE);
+        table.getTableHeader().setDefaultRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable tbl, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int col) {
+                JLabel lbl = (JLabel) super.getTableCellRendererComponent(
+                        tbl, value, isSelected, hasFocus, row, col);
+                lbl.setBackground(new Color(26, 58, 89));
+                lbl.setForeground(Color.WHITE);
+                lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
+                lbl.setOpaque(true);
+                lbl.setHorizontalAlignment(JLabel.CENTER);
+                return lbl;
+            }
+        });
 
         // Status column: JComboBox editor
         JComboBox<String> statusCombo = new JComboBox<>(new String[]{"Present", "Absent"});
